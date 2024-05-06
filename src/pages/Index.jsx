@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Button, Container, Flex, IconButton, Input, List, ListItem, Text, useToast } from '@chakra-ui/react';
 import { FaTrash, FaCheckCircle } from 'react-icons/fa';
 
@@ -6,6 +6,11 @@ const Index = () => {
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState('');
   const toast = useToast();
+
+  useEffect(() => {
+    const storedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    setTasks(storedTasks);
+  }, []);
 
   const handleAddTask = () => {
     if (input.trim() === '') {
@@ -18,16 +23,23 @@ const Index = () => {
       });
       return;
     }
-    setTasks([...tasks, { id: Date.now(), text: input, isCompleted: false }]);
+    const newTasks = [...tasks, { id: Date.now(), text: input, isCompleted: false }];
+    setTasks(newTasks);
+    localStorage.setItem('tasks', JSON.stringify(newTasks));
     setInput('');
   };
 
   const handleDeleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
+    const newTasks = tasks.filter(task => task.id !== id);
+    setTasks(newTasks);
+    localStorage.setItem('tasks', JSON.stringify(newTasks));
   };
 
   const handleCompleteTask = (id) => {
-    setTasks(tasks.map(task => task.id === id ? { ...task, isCompleted: !task.isCompleted } : task));
+    const newTasks = tasks.map(task => task.id === id ? { ...task, isCompleted: !task.isCompleted } : task);
+    setTasks(newTasks);
+    const completedTasks = newTasks.filter(task => task.isCompleted);
+    localStorage.setItem('completedTasks', JSON.stringify(completedTasks));
   };
 
   return (
